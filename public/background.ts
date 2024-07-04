@@ -1,9 +1,4 @@
-chrome.runtime.onMessage.addListener(function (message: {
-  action: string;
-  code: string;
-  CLIENT_ID: string;
-  CLIENT_SECRET: string;
-}) {
+chrome.runtime.onMessage.addListener(function (message) {
   switch (message.action) {
     case "oauth2":
       handleGetAccessToken(message);
@@ -18,9 +13,10 @@ async function handleGetAccessToken(message: {
   CLIENT_SECRET: string;
 }) {
   const { code, CLIENT_ID, CLIENT_SECRET } = message;
+  const URL = "https://www.figma.com/api/oauth/token";
 
   try {
-    const response = await fetch("https://www.figma.com/api/oauth/token", {
+    const response = await fetch(URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
