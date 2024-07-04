@@ -36,9 +36,11 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-8">
+    <div className="items-center justify-center p-8">
       <Introduction />
-      <Button onClick={clickev}>Figma 계정으로 로그인</Button>
+      <Button onClick={clickev} className="bg-indigo-600 hover:bg-indigo-700">
+        Figma 계정으로 로그인
+      </Button>
     </div>
   );
 };
