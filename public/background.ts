@@ -51,14 +51,14 @@ async function handleGetAccessToken(message: {
 
 async function handleFetchDiffData(message: {
   action: string;
-  FIGMA_URL: string;
+  figmaUrl: string;
+  accessToken: string;
   SERVER_URL: string;
-  ACCESS_TOKEN: string;
 }) {
   try {
-    const { FIGMA_URL, SERVER_URL, ACCESS_TOKEN } = message;
+    const { figmaUrl, accessToken, SERVER_URL } = message;
 
-    const imageDataUrl = await new Promise((resolve) => {
+    const imageDataUrl: string = await new Promise((resolve) => {
       chrome.tabs.captureVisibleTab(
         { format: "png", quality: 100 },
         (imageUrl) => {
@@ -67,12 +67,24 @@ async function handleFetchDiffData(message: {
       );
     });
 
+    const imageResponse = await fetch(imageDataUrl);
+    const imageBlob = await imageResponse.blob();
+    const screenshot = new File([imageBlob], "screenshot.png", {
+      type: "image/png",
+    });
+
+    const formData = new FormData();
+
+    formData.append("screenshot", screenshot);
+    formData.append("figmaUrl", figmaUrl);
+    formData.append("accessToken", accessToken);
+
     const response = await fetch(`${SERVER_URL}/figma-diff`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ imageDataUrl, FIGMA_URL, ACCESS_TOKEN }),
+      body: formData,
     });
 
     if (!response.ok) {
