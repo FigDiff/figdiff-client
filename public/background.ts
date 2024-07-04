@@ -79,11 +79,8 @@ async function handleFetchDiffData(message: {
     formData.append("figmaUrl", figmaUrl);
     formData.append("accessToken", accessToken);
 
-    const response = await fetch(`${SERVER_URL}/figma-diff`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const response = await fetch(`${SERVER_URL}/figma-data`, {
+      method: "POST",
       body: formData,
     });
 
