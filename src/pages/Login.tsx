@@ -3,7 +3,7 @@ import Button from "../components/Button";
 import Introduction from "../components/Introduction";
 
 const Login: React.FC = () => {
-  const clickev = () => {
+  const handleGetOauth = () => {
     chrome.identity.launchWebAuthFlow(
       {
         url: `https://www.figma.com/oauth?client_id=${import.meta.env.VITE_CLIENT_ID}&redirect_uri=https://${chrome.runtime.id}.chromiumapp.org/&scope=file_read&state=state&response_type=code`,
@@ -38,9 +38,7 @@ const Login: React.FC = () => {
   return (
     <div className="items-center justify-center p-8">
       <Introduction />
-      <Button onClick={clickev} className="bg-indigo-600 hover:bg-indigo-700">
-        Figma 계정으로 로그인
-      </Button>
+      <Button onClick={clickev}>Figma 계정으로 로그인</Button>
     </div>
   );
 };
