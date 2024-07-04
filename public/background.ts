@@ -17,9 +17,7 @@ async function handleGetAccessToken(message: {
   CLIENT_ID: string;
   CLIENT_SECRET: string;
 }) {
-  const code: string = message.code;
-  const CLIENT_ID: string = message.CLIENT_ID;
-  const CLIENT_SECRET: string = message.CLIENT_SECRET;
+  const { code, CLIENT_ID, CLIENT_SECRET } = message;
 
   try {
     const response = await fetch("https://www.figma.com/api/oauth/token", {
@@ -31,7 +29,7 @@ async function handleGetAccessToken(message: {
         client_id: CLIENT_ID,
         client_secret: CLIENT_SECRET,
         redirect_uri: `https://${chrome.runtime.id}.chromiumapp.org/`,
-        code: code,
+        code,
         grant_type: "authorization_code",
       }),
     });
@@ -41,16 +39,10 @@ async function handleGetAccessToken(message: {
     }
 
     const data = await response.json();
-    console.info(data);
-    chrome.storage.local.set({ data: data }, () => {
+
+    chrome.storage.local.set({ data }, () => {
       if (chrome.runtime.lastError) {
         console.error("Error setting data:", chrome.runtime.lastError);
-      } else {
-        console.info("Data saved successfully");
-
-        chrome.storage.local.get(["data"], (result) => {
-          console.info("Stored data:", result.data);
-        });
       }
     });
   } catch (error) {

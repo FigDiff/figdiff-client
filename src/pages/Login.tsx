@@ -23,7 +23,7 @@ const Login: React.FC = () => {
           if (code) {
             chrome.runtime.sendMessage({
               action: "oauth2",
-              code: code,
+              code,
               CLIENT_ID: import.meta.env.VITE_CLIENT_ID,
               CLIENT_SECRET: import.meta.env.VITE_CLIENT_KEY,
             });
