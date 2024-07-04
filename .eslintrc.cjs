@@ -6,19 +6,28 @@ module.exports = {
     "plugin:react/recommended",
     "plugin:react/jsx-runtime",
     "plugin:react-hooks/recommended",
+    "plugin:@typescript-eslint/recommended",
     "prettier",
   ],
   ignorePatterns: ["dist", ".eslintrc.cjs", "src/index.css"],
   parser: "@typescript-eslint/parser",
-  plugins: ["react-refresh"],
+  parserOptions: {
+    ecmaVersion: 2020,
+    sourceType: "module",
+    ecmaFeatures: {
+      jsx: true,
+    },
+    tsconfigRootDir: __dirname,
+    project: ["./tsconfig.json", "./tsconfig.app.json", "./tsconfig.node.json"],
+  },
+  plugins: ["react-refresh", "@typescript-eslint"],
   rules: {
-    "no-console": "error",
+    "no-console": ["error", { allow: ["warn", "error", "info"] }],
     "react/prop-types": "off",
     "react-refresh/only-export-components": [
       "warn",
       { allowConstantExport: true },
     ],
-    "react/prop-types": "off",
   },
   globals: {
     chrome: true,
