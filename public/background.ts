@@ -3,6 +3,9 @@ chrome.runtime.onMessage.addListener(function (message) {
     case "oauth2":
       handleGetAccessToken(message);
       break;
+    case "fetchDiffData":
+      handleFetchDiffData(message);
+      break;
   }
 });
 
@@ -43,5 +46,39 @@ async function handleGetAccessToken(message: {
     });
   } catch (error) {
     console.error("Error fetching token:", error);
+  }
+}
+
+async function handleFetchDiffData(message: {
+  action: string;
+  FIGMA_URL: string;
+  SERVER_URL: string;
+  ACCESS_TOKEN: string;
+}) {
+  try {
+    const { FIGMA_URL, SERVER_URL, ACCESS_TOKEN } = message;
+
+    const imageDataUrl = await new Promise((resolve) => {
+      chrome.tabs.captureVisibleTab(
+        { format: "png", quality: 100 },
+        (imageUrl) => {
+          resolve(imageUrl);
+        },
+      );
+    });
+
+    const response = await fetch(`${SERVER_URL}/figma-diff`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ imageDataUrl, FIGMA_URL, ACCESS_TOKEN }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+  } catch (error) {
+    console.error("An error:", error);
   }
 }
