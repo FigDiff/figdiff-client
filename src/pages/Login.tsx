@@ -36,7 +36,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-8">
+    <div className="items-center justify-center p-8">
       <Introduction />
       <Button onClick={handleGetOauth}>Figma 계정으로 로그인</Button>
     </div>
