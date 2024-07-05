@@ -8,6 +8,14 @@ const __dirname = dirname(__filename);
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      "@components": resolve(__dirname, "src/components"),
+      "@pages": resolve(__dirname, "src/pages"),
+      "@utils": resolve(__dirname, "src/utils"),
+      "@assets": resolve(__dirname, "src/assets"),
+    },
+  },
   build: {
     rollupOptions: {
       input: {
