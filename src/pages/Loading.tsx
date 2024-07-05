@@ -16,6 +16,10 @@ const Loading: React.FC<LoadingProps> = ({ condition, error }) => {
       setIsLoading(false);
     } else if (condition) {
       setIsLoading(false);
+
+      setTimeout(() => {
+        window.close();
+      }, 3000);
     }
   }, [condition, error]);
 
