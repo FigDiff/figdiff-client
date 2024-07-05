@@ -9,6 +9,7 @@ const Main: React.FC = () => {
   const { accessToken } = useAuthStore();
   const [figmaUrl, setFigmaUrl] = useState("");
   const [isValidUrl, setIsValidUrl] = useState<boolean | null>(null);
+  const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
   useEffect(() => {
     if (figmaUrl) {
@@ -18,11 +19,12 @@ const Main: React.FC = () => {
     }
   }, [figmaUrl]);
 
-  const clickev = () => {
+  const haldlePostData = () => {
     chrome.runtime.sendMessage({
       action: "fetchDiffData",
-      figmaUrl: figmaUrl,
-      accessToken: accessToken,
+      figmaUrl,
+      accessToken,
+      SERVER_URL,
     });
   };
 
@@ -33,7 +35,7 @@ const Main: React.FC = () => {
       </h1>
       <UrlInput
         value={figmaUrl}
-        onChange={(ev) => setFigmaUrl(ev.target.value)}
+        onChange={(event) => setFigmaUrl(event.target.value)}
         isValid={isValidUrl}
         placeholder="URL 입력"
       />
@@ -41,7 +43,7 @@ const Main: React.FC = () => {
         <p className="text-center text-red-500 mb-4">유효한 URL이 아닙니다</p>
       )}
       <Button
-        onClick={clickev}
+        onClick={haldlePostData}
         className={`${isValidUrl ? "bg-green-500" : "bg-gray-500 cursor-not-allowed"}`}
         disabled={!isValidUrl}
       >
