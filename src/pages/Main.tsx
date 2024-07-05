@@ -35,7 +35,7 @@ const Main: React.FC = () => {
       </h1>
       <UrlInput
         value={figmaUrl}
-        onChange={(ev) => setFigmaUrl(ev.target.value)}
+        onChange={(event) => setFigmaUrl(event.target.value)}
         isValid={isValidUrl}
         placeholder="URL 입력"
       />
