@@ -1,12 +1,10 @@
-chrome.runtime.onMessage.addListener(function (message: {
-  action: string;
-  code: string;
-  CLIENT_ID: string;
-  CLIENT_SECRET: string;
-}) {
+chrome.runtime.onMessage.addListener(function (message) {
   switch (message.action) {
     case "oauth2":
       handleGetAccessToken(message);
+      break;
+    case "fetchDiffData":
+      handleFetchDiffData(message);
       break;
   }
 });
@@ -18,9 +16,10 @@ async function handleGetAccessToken(message: {
   CLIENT_SECRET: string;
 }) {
   const { code, CLIENT_ID, CLIENT_SECRET } = message;
+  const URL = "https://www.figma.com/api/oauth/token";
 
   try {
-    const response = await fetch("https://www.figma.com/api/oauth/token", {
+    const response = await fetch(URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -47,5 +46,48 @@ async function handleGetAccessToken(message: {
     });
   } catch (error) {
     console.error("Error fetching token:", error);
+  }
+}
+
+async function handleFetchDiffData(message: {
+  action: string;
+  figmaUrl: string;
+  accessToken: string;
+  SERVER_URL: string;
+}) {
+  try {
+    const { figmaUrl, accessToken, SERVER_URL } = message;
+
+    const imageDataUrl: string = await new Promise((resolve) => {
+      chrome.tabs.captureVisibleTab(
+        { format: "png", quality: 100 },
+        (imageUrl) => {
+          resolve(imageUrl);
+        },
+      );
+    });
+
+    const imageResponse = await fetch(imageDataUrl);
+    const imageBlob = await imageResponse.blob();
+    const screenshot = new File([imageBlob], "screenshot.png", {
+      type: "image/png",
+    });
+
+    const formData = new FormData();
+
+    formData.append("screenshot", screenshot);
+    formData.append("figmaUrl", figmaUrl);
+    formData.append("accessToken", accessToken);
+
+    const response = await fetch(`${SERVER_URL}/figma-data`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+  } catch (error) {
+    console.error("An error:", error);
   }
 }
