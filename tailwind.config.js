@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       animation: {
-        spin: "spin 1s linear infinite",
+        spin: "spin 3s linear infinite",
       },
       keyframes: {
         spin: {
