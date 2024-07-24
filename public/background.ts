@@ -87,6 +87,22 @@ async function handleFetchDiffData(message: {
         "Content-Type": "multipart/form-data",
       },
     });
+
+    const data = response.data;
+
+    chrome.scripting.executeScript(
+      {
+        target: { tabId: tabData.id },
+        files: ["renderDifferences.js"],
+      },
+      () => {
+        chrome.tabs.sendMessage(tabData.id, {
+          action: "renderDifferences",
+          data,
+          tabUrl: tabData.url,
+        });
+      },
+    );
   } catch (error) {
     console.error("An error occurred:", error);
   }
