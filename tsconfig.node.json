@@ -12,6 +12,6 @@
     "skipLibCheck": true,
     "outDir": "./dist"
   },
-  "include": ["vite.config.ts", "public/**/*.ts"],
+  "include": ["vite.config.ts", "public/**/*.ts", "public/**/*.js"],
   "exclude": ["node_modules", "dist"]
 }
