@@ -1,3 +1,5 @@
+import axios from "axios";
+
 chrome.runtime.onMessage.addListener(function (message) {
   switch (message.action) {
     case "oauth2":
@@ -58,36 +60,50 @@ async function handleFetchDiffData(message: {
   try {
     const { figmaUrl, accessToken, SERVER_URL } = message;
 
-    const imageDataUrl: string = await new Promise((resolve) => {
-      chrome.tabs.captureVisibleTab(
-        { format: "png", quality: 100 },
-        (imageUrl) => {
-          resolve(imageUrl);
-        },
-      );
-    });
+    const tabData = await new Promise<{ url: string; id: number }>(
+      (resolve, reject) => {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          const activeTab = tabs[0];
 
-    const imageResponse = await fetch(imageDataUrl);
-    const imageBlob = await imageResponse.blob();
-    const screenshot = new File([imageBlob], "screenshot.png", {
-      type: "image/png",
-    });
+          if (!activeTab || !activeTab.url || activeTab.id === undefined) {
+            console.error("Active tab not found or missing properties.");
+            reject(new Error("Active tab not found or missing properties."));
+
+            return;
+          }
+
+          resolve({ url: activeTab.url, id: activeTab.id });
+        });
+      },
+    );
 
     const formData = new FormData();
-
-    formData.append("screenshot", screenshot);
+    formData.append("tabUrl", tabData.url);
     formData.append("figmaUrl", figmaUrl);
     formData.append("accessToken", accessToken);
 
-    const response = await fetch(`${SERVER_URL}/figma-data`, {
-      method: "POST",
-      body: formData,
+    const response = await axios.post(`${SERVER_URL}/figma-data`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     });
 
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
+    const data = response.data;
+
+    chrome.scripting.executeScript(
+      {
+        target: { tabId: tabData.id },
+        files: ["renderDifferences.js"],
+      },
+      () => {
+        chrome.tabs.sendMessage(tabData.id, {
+          action: "renderDifferences",
+          data,
+          tabUrl: tabData.url,
+        });
+      },
+    );
   } catch (error) {
-    console.error("An error:", error);
+    console.error("An error occurred:", error);
   }
 }
