@@ -105,7 +105,6 @@ async function handleFetchDiffData(message: {
         chrome.runtime.sendMessage({
           action: "dataFetched",
           success: true,
-          data,
         });
       },
     );
