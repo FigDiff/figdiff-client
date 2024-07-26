@@ -10,7 +10,7 @@ interface LoadingProps {
   error: boolean;
 }
 
-const Loading: React.FC<LoadingProps> = ({ error }) => {
+const Loading: React.FC<LoadingProps> = ({ condition, error }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [showMain, setShowMain] = useState(false);
   const [isDataFetched, setIsDataFetched] = useState(false);
@@ -18,8 +18,14 @@ const Loading: React.FC<LoadingProps> = ({ error }) => {
   useEffect(() => {
     if (error) {
       setIsLoading(false);
+    } else if (condition) {
+      setIsLoading(false);
+
+      setTimeout(() => {
+        window.close();
+      }, 3000);
     }
-  }, [error]);
+  }, [condition, error]);
 
   useEffect(() => {
     const messageListener = (message: { action: string }) => {
