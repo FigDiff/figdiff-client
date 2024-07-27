@@ -101,11 +101,6 @@ async function handleFetchDiffData(message: {
           data,
           tabUrl: tabData.url,
         });
-
-        chrome.runtime.sendMessage({
-          action: "dataFetched",
-          success: true,
-        });
       },
     );
   } catch (error) {
