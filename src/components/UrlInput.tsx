@@ -16,7 +16,7 @@ const UrlInput: React.FC<UrlInputProps> = ({
   return (
     <input
       type="text"
-      className={`w-full p-2 mb-4 border rounded focus:outline-none focus:ring-2 ${
+      className={`w-full p-2 mt-5 mb-4 border rounded focus:outline-none focus:ring-2 ${
         isValid === null
           ? "focus:ring-green-500"
           : isValid
