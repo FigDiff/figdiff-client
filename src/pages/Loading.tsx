@@ -29,9 +29,14 @@ const Loading: React.FC<LoadingProps> = ({ condition, error }) => {
 
   useEffect(() => {
     const messageListener = (message: { action: string }) => {
-      if (message.action === "renderDifferences") {
-        setIsDataFetched(true);
-        setIsLoading(false);
+      if (message.action === "dataFetched") {
+        if (message) {
+          setIsDataFetched(true);
+          setIsLoading(false);
+        } else {
+          console.error("Error fetching data:", message);
+          setIsLoading(false);
+        }
       }
     };
 
