@@ -75,7 +75,9 @@ const Loading: React.FC<LoadingProps> = ({ condition, error }) => {
     }
 
     return () => {
-      if (interval) window.clearInterval(interval);
+      if (interval) {
+        window.clearInterval(interval);
+      }
     };
   }, [progress, animatedProgress]);
 
