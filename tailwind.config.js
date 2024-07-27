@@ -4,12 +4,12 @@ export default {
   theme: {
     extend: {
       animation: {
-        spin: "spin 3s linear infinite",
+        progress: "progress 1s ease-in-out",
       },
       keyframes: {
-        spin: {
-          "0%": { transform: "rotate(0deg)" },
-          "100%": { transform: "rotate(360deg)" },
+        progress: {
+          "0%": { width: "0%" },
+          "100%": { width: "100%" },
         },
       },
     },
