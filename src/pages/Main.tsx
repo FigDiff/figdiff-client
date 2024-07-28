@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuthStore } from "../store/useAccessToken";
 import { isValidFigmaUrl } from "../utils/utils";
 
@@ -8,30 +8,62 @@ import Button from "../components/Button";
 
 const Main: React.FC = () => {
   const { accessToken } = useAuthStore();
-  const [figmaUrl, setFigmaUrl] = useState("");
   const [isValidUrl, setIsValidUrl] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [webContentVisible, setWebContentVisible] = useState(false);
+
+  const figmaUrlRef = useRef<string>("");
   const WEB_URL = import.meta.env.VITE_WEB_URL;
   const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
   useEffect(() => {
-    if (figmaUrl) {
-      setIsValidUrl(isValidFigmaUrl(figmaUrl));
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const tabId = tabs[0].id;
+      const sessionKey = `session_${tabId}`;
+
+      chrome.storage.session.get([sessionKey], (result) => {
+        const sessionData = result[sessionKey] || {};
+        setIsLoading(sessionData.isLoading || false);
+      });
+    });
+  }, []);
+
+  const handleUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const url = event.target.value;
+    figmaUrlRef.current = url;
+    if (url) {
+      setIsValidUrl(isValidFigmaUrl(url));
     } else {
       setIsValidUrl(null);
     }
-  }, [figmaUrl]);
+  };
 
   const handlePostData = () => {
-    chrome.runtime.sendMessage({
-      action: "fetchDiffData",
-      figmaUrl,
-      accessToken,
-      SERVER_URL,
-    });
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const tabId = tabs[0].id;
+      const tabUrl = tabs[0].url;
+      const sessionKey = `session_${tabId}`;
 
-    setIsLoading(true);
+      chrome.storage.session.set(
+        {
+          [sessionKey]: {
+            isLoading: true,
+          },
+        },
+        () => {
+          setIsLoading(true);
+
+          chrome.runtime.sendMessage({
+            action: "fetchDiffData",
+            figmaUrl: figmaUrlRef.current,
+            accessToken,
+            SERVER_URL,
+            tabId,
+            tabUrl,
+          });
+        },
+      );
+    });
   };
 
   const toggleWebContent = () => {
@@ -43,12 +75,12 @@ const Main: React.FC = () => {
   };
 
   if (isLoading) {
-    return <Loading condition={!isLoading} error={false} />;
+    return <Loading />;
   }
 
   return (
-    <div className="w-full p-8 bg-white rounded-t-none shadow-lg mt-0">
-      <h1 className="text-2xl font-bold text-gray-800 mt-0 mb-2">FigDiff</h1>
+    <div className="p-8">
+      <h1 className="text-2xl font-bold text-gray-800 mb-2">FigDiff</h1>
       <hr className="border-gray-300 my-2" />
       <div className="grid grid-cols-2 gap-4 mt-4">
         <Button
@@ -92,8 +124,8 @@ const Main: React.FC = () => {
             </ul>
           </div>
           <UrlInput
-            value={figmaUrl}
-            onChange={(event) => setFigmaUrl(event.target.value)}
+            value={figmaUrlRef.current}
+            onChange={handleUrlChange}
             isValid={isValidUrl}
             placeholder="https://api.figma.com/v1/images/${fileId}?ids=${nodeId}&format=png"
           />
