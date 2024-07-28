@@ -90,6 +90,8 @@ async function handleFetchDiffData(message: {
       },
     );
   } catch (error) {
+    chrome.runtime.sendMessage({ action: "serverError" });
+
     console.error("An error occurred:", error);
   }
 }

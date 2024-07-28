@@ -12,6 +12,22 @@ const Loading: React.FC = () => {
   const [currentStage, setCurrentStage] = useState("분석 준비중입니다");
 
   useEffect(() => {
+    const handleMessage = (message: { action: string }) => {
+      if (message.action === "serverError") {
+        setIsLoading(false);
+        setIsDataFetched(false);
+        setIsDataFetchError(true);
+      }
+    };
+
+    chrome.runtime.onMessage.addListener(handleMessage);
+
+    return () => {
+      chrome.runtime.onMessage.removeListener(handleMessage);
+    };
+  }, []);
+
+  useEffect(() => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const tabId = tabs[0].id;
       const sessionKey = `session_${tabId}`;
@@ -62,6 +78,7 @@ const Loading: React.FC = () => {
 
           setIsLoading(false);
           setIsDataFetched(false);
+          setIsDataFetchError(true);
         };
 
         return () => {
@@ -116,8 +133,11 @@ const Loading: React.FC = () => {
       )}
       {isDataFetchError && (
         <div className="flex flex-col items-center justify-center w-full h-full">
-          <p className="text-lg text-center font-semibold w-full text-red-700 mb-4">
-            비교에 실패하였습니다. 다시 시도해주세요.
+          <p className="text-base text-center font-semibold w-full text-red-700">
+            비교에 실패하였습니다.
+          </p>
+          <p className="text-base text-center font-semibold w-full text-red-700 mb-8">
+            다시 시도해주세요.
           </p>
           <ErrorMark />
           <button
