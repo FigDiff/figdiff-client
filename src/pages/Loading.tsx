@@ -15,7 +15,6 @@ const Loading: React.FC<LoadingProps> = ({ condition, error }) => {
   const [showMain, setShowMain] = useState(false);
   const [isDataFetched, setIsDataFetched] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [animatedProgress, setAnimatedProgress] = useState(0);
   const [currentStage, setCurrentStage] = useState("분석 준비중입니다");
 
   useEffect(() => {
@@ -57,29 +56,6 @@ const Loading: React.FC<LoadingProps> = ({ condition, error }) => {
       eventSource.close();
     };
   }, []);
-
-  useEffect(() => {
-    let interval: number;
-
-    if (animatedProgress < progress) {
-      interval = window.setInterval(() => {
-        setAnimatedProgress((prev) => Math.min(prev + 1, progress));
-      }, 50);
-    } else if (animatedProgress < 100 && progress === 100) {
-      interval = window.setInterval(() => {
-        setAnimatedProgress((prev) => Math.min(prev + 1, 100));
-      }, 50);
-    } else if (animatedProgress === 100) {
-      setIsDataFetched(true);
-      setIsLoading(false);
-    }
-
-    return () => {
-      if (interval) {
-        window.clearInterval(interval);
-      }
-    };
-  }, [progress, animatedProgress]);
 
   const handleRetry = () => {
     setShowMain(true);

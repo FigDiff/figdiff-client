@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 interface ProgressBarProps {
   progress: number;
@@ -9,9 +9,9 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   progress,
   currentStage,
 }) => {
-  const [animatedProgress, setAnimatedProgress] = React.useState(0);
+  const [animatedProgress, setAnimatedProgress] = useState(0);
 
-  React.useEffect(() => {
+  useEffect(() => {
     let interval: number;
 
     if (animatedProgress < progress) {
