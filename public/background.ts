@@ -56,29 +56,15 @@ async function handleFetchDiffData(message: {
   figmaUrl: string;
   accessToken: string;
   SERVER_URL: string;
+  tabId: number;
+  tabUrl: string;
 }) {
   try {
-    const { figmaUrl, accessToken, SERVER_URL } = message;
-
-    const tabData = await new Promise<{ url: string; id: number }>(
-      (resolve, reject) => {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          const activeTab = tabs[0];
-
-          if (!activeTab || !activeTab.url || activeTab.id === undefined) {
-            console.error("Active tab not found or missing properties.");
-            reject(new Error("Active tab not found or missing properties."));
-
-            return;
-          }
-
-          resolve({ url: activeTab.url, id: activeTab.id });
-        });
-      },
-    );
+    const { figmaUrl, accessToken, SERVER_URL, tabId, tabUrl } = message;
 
     const formData = new FormData();
-    formData.append("tabUrl", tabData.url);
+
+    formData.append("tabUrl", tabUrl);
     formData.append("figmaUrl", figmaUrl);
     formData.append("accessToken", accessToken);
 
@@ -92,14 +78,14 @@ async function handleFetchDiffData(message: {
 
     chrome.scripting.executeScript(
       {
-        target: { tabId: tabData.id },
+        target: { tabId },
         files: ["renderDifferences.js"],
       },
       () => {
-        chrome.tabs.sendMessage(tabData.id, {
+        chrome.tabs.sendMessage(tabId, {
           action: "renderDifferences",
           data,
-          tabUrl: tabData.url,
+          tabUrl: tabUrl,
         });
       },
     );
