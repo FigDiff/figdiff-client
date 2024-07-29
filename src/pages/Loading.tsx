@@ -1,103 +1,155 @@
 import React, { useEffect, useState } from "react";
 import Main from "./Main";
-import CheckMark from "../components/CheckMark";
 import ErrorMark from "../components/ErrorMark";
-import Button from "../components/Button";
 import ProgressBar from "../components/ProgressBar";
 
-interface LoadingProps {
-  condition: boolean;
-  error: boolean;
-}
-
-const Loading: React.FC<LoadingProps> = ({ condition, error }) => {
+const Loading: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showMain, setShowMain] = useState(false);
   const [isDataFetched, setIsDataFetched] = useState(false);
+  const [isDataFetchError, setIsDataFetchError] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentStage, setCurrentStage] = useState("분석 준비중입니다");
 
   useEffect(() => {
-    if (error) {
-      setIsLoading(false);
-    } else if (condition) {
-      setIsLoading(false);
-      setTimeout(() => {
-        window.close();
-      }, 3000);
-    }
-  }, [condition, error]);
-
-  useEffect(() => {
-    const eventSource = new EventSource(
-      import.meta.env.VITE_SERVER_URL + "/progress",
-    );
-
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-
-      if (data.progress) {
-        setCurrentStage(data.stage);
-        setProgress(data.progress);
-
-        if (data.progress === 100) {
-          eventSource.close();
-        }
+    const handleMessage = (message: { action: string }) => {
+      if (message.action === "serverError") {
+        setIsLoading(false);
+        setIsDataFetched(false);
+        setIsDataFetchError(true);
       }
     };
 
-    eventSource.onerror = (error) => {
-      console.error("SSE Error:", error);
-      setIsLoading(false);
-      setIsDataFetched(false);
-    };
+    chrome.runtime.onMessage.addListener(handleMessage);
 
     return () => {
-      eventSource.close();
+      chrome.runtime.onMessage.removeListener(handleMessage);
     };
   }, []);
 
+  useEffect(() => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const tabId = tabs[0].id;
+      const sessionKey = `session_${tabId}`;
+
+      chrome.storage.session.get([sessionKey], (result) => {
+        const sessionData = result[sessionKey] || {};
+
+        setProgress(sessionData.progress ?? 0);
+        setCurrentStage(sessionData.currentStage ?? "분석 준비중입니다");
+        setIsDataFetched(sessionData.isDataFetched ?? false);
+        setIsDataFetchError(sessionData.isDataFetchError ?? false);
+      });
+
+      if (!isDataFetched) {
+        const eventSource = new EventSource(
+          import.meta.env.VITE_SERVER_URL + "/progress",
+        );
+
+        eventSource.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+
+          if (data.progress) {
+            setCurrentStage(data.stage);
+            setProgress(data.progress);
+
+            const newSessionData = {
+              progress: data.progress,
+              currentStage: data.stage,
+              isDataFetched: data.progress === 100,
+              isDataFetchError: false,
+              isLoading: true,
+            };
+
+            chrome.storage.session.set({
+              [sessionKey]: newSessionData,
+            });
+
+            if (data.progress === 100) {
+              setIsDataFetched(true);
+
+              eventSource.close();
+            }
+          }
+        };
+
+        eventSource.onerror = (error) => {
+          console.error("SSE Error:", error);
+
+          setIsLoading(false);
+          setIsDataFetched(false);
+          setIsDataFetchError(true);
+        };
+
+        return () => {
+          eventSource.close();
+        };
+      }
+    });
+  }, [isDataFetched]);
+
   const handleRetry = () => {
-    setShowMain(true);
+    setIsLoading(false);
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const tabId = tabs[0]?.id;
+      if (tabId) {
+        const sessionKey = `session_${tabId}`;
+
+        chrome.storage.session.remove([sessionKey], () => {
+          setShowMain(true);
+        });
+      }
+    });
+  };
+
+  const handleDataSave = () => {
+    // 데이터 저장 로직을 추가 작성해야합니다!
   };
 
   if (showMain) {
     return <Main />;
   }
 
-  if (isLoading) {
-    return <ProgressBar progress={progress} currentStage={currentStage} />;
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center w-full h-screen">
-        <p className="text-lg text-center font-semibold w-full text-red-700 mb-4">
-          비교에 실패하였습니다. 다시 시도해주세요.
-        </p>
-        <ErrorMark />
-        <Button
-          onClick={handleRetry}
-          className="bg-red-500 hover:bg-red-700 mt-4 w-full"
-        >
-          URL 다시 입력하기
-        </Button>
-      </div>
-    );
-  }
-
-  if (isDataFetched) {
-    return (
-      <div className="flex flex-col items-center justify-center w-full h-screen">
-        <p className="text-lg font-semibold text-gray-700 mb-4">
-          비교가 완료되었습니다!
-        </p>
-        <CheckMark />
-      </div>
-    );
-  }
-
-  return null;
+  return (
+    <div className="flex flex-col items-center justify-center w-full h-full p-4">
+      {isLoading && (
+        <ProgressBar progress={progress} currentStage={currentStage} />
+      )}
+      {isDataFetched && (
+        <div className="flex justify-center space-x-4 mt-4">
+          <button
+            onClick={handleDataSave}
+            className="text-white rounded transition duration-300 ease-in-out bg-gray-400 hover:bg-gray-600 py-3 px-4"
+          >
+            💾 내역 저장하기
+          </button>
+          <button
+            onClick={handleRetry}
+            className="text-white rounded transition duration-300 ease-in-out bg-gray-400 hover:bg-gray-600 py-3 px-4"
+          >
+            🔄 입력창으로 돌아가기
+          </button>
+        </div>
+      )}
+      {isDataFetchError && (
+        <div className="flex flex-col items-center justify-center w-full h-full">
+          <p className="text-base text-center font-semibold w-full text-red-700">
+            비교에 실패하였습니다.
+          </p>
+          <p className="text-base text-center font-semibold w-full text-red-700 mb-8">
+            다시 시도해주세요.
+          </p>
+          <ErrorMark />
+          <button
+            onClick={handleRetry}
+            className="text-white rounded transition duration-300 ease-in-out bg-gray-400 hover:bg-gray-600 py-3 px-4"
+          >
+            🔄 입력창으로 돌아가기
+          </button>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default Loading;
