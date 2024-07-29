@@ -62,15 +62,15 @@ async function handleFetchDiffData(message: {
   try {
     const { figmaUrl, accessToken, SERVER_URL, tabId, tabUrl } = message;
 
-    const formData = new FormData();
+    const payload = {
+      tabUrl,
+      figmaUrl,
+      accessToken,
+    };
 
-    formData.append("tabUrl", tabUrl);
-    formData.append("figmaUrl", figmaUrl);
-    formData.append("accessToken", accessToken);
-
-    const response = await axios.post(`${SERVER_URL}/figma-data`, formData, {
+    const response = await axios.post(`${SERVER_URL}/figma-data`, payload, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        "Content-Type": "application/json",
       },
     });
 
