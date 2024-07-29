@@ -1,27 +1,29 @@
 chrome.runtime.onMessage.addListener((message) => {
   if (message.action === "renderDifferences") {
     const data = message.data;
-    const tabUrl = message.tabUrl;
 
-    renderDifferences(data, tabUrl);
+    renderDifferences(data);
   }
 });
 
-function renderDifferences(data, tabUrl) {
+function renderDifferences(data) {
   document.body.replaceChildren();
 
-  const iframe = document.createElement("iframe");
+  const screenshotBuffer = new Uint8Array(data.screenshotBuffer.data);
+  const screenshotBlob = new Blob([screenshotBuffer], { type: "image/png" });
+  const screenshotUrl = URL.createObjectURL(screenshotBlob);
+  const screenshotImage = document.createElement("img");
 
-  iframe.setAttribute("src", `${tabUrl}`);
-  iframe.setAttribute("width", `${data.figmaWidth}`);
-  iframe.setAttribute("height", `${data.figmaHeight}`);
+  screenshotImage.classList.add("screenshot-image");
 
-  iframe.style.position = "absolute";
-  iframe.style.left = "1.5px";
-  iframe.style.top = "1.5px";
-  iframe.style.border = "0px";
+  screenshotImage.src = screenshotUrl;
 
-  document.body.appendChild(iframe);
+  screenshotImage.style.position = "absolute";
+  screenshotImage.style.left = "1.5px";
+  screenshotImage.style.top = "1.5px";
+  screenshotImage.style.border = "0px";
+
+  document.body.appendChild(screenshotImage);
 
   data.differentFigmaNodes.forEach((node, index) => {
     const { x, y, width, height } = node.absoluteBoundingBox;
@@ -50,22 +52,22 @@ function renderDifferences(data, tabUrl) {
     document.body.appendChild(diffContainer);
   });
 
-  const existingIframe = document.querySelector("iframe");
-  const iframeOpacityHandler = document.createElement("input");
+  const existingScreenshot = document.querySelector(".screenshot-image");
+  const screenshotOpacityHandler = document.createElement("input");
 
-  iframeOpacityHandler.setAttribute("type", "range");
-  iframeOpacityHandler.style.position = "absolute";
-  iframeOpacityHandler.style.left = "0px";
-  iframeOpacityHandler.style.top = "0px";
-  iframeOpacityHandler.style.width = "150px";
-  iframeOpacityHandler.value = 100;
+  screenshotOpacityHandler.setAttribute("type", "range");
+  screenshotOpacityHandler.style.position = "absolute";
+  screenshotOpacityHandler.style.left = "0px";
+  screenshotOpacityHandler.style.top = "0px";
+  screenshotOpacityHandler.style.width = "150px";
+  screenshotOpacityHandler.value = 100;
 
-  document.body.appendChild(iframeOpacityHandler);
+  document.body.appendChild(screenshotOpacityHandler);
 
-  iframeOpacityHandler.addEventListener("input", () => {
-    const iframeOpacityValue = iframeOpacityHandler.value / 100;
+  screenshotOpacityHandler.addEventListener("input", () => {
+    const screenshotOpacityValue = screenshotOpacityHandler.value / 100;
 
-    existingIframe.style.opacity = iframeOpacityValue;
+    existingScreenshot.style.opacity = screenshotOpacityValue;
   });
 
   const figmaImages = document.querySelectorAll(".figma-image");

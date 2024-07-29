@@ -85,7 +85,6 @@ async function handleFetchDiffData(message: {
         chrome.tabs.sendMessage(tabId, {
           action: "renderDifferences",
           data,
-          tabUrl: tabUrl,
         });
       },
     );
