@@ -12,6 +12,11 @@
     "skipLibCheck": true,
     "outDir": "./dist"
   },
-  "include": ["vite.config.ts", "public/**/*.ts", "public/**/*.js"],
+  "include": [
+    "vite.config.ts",
+    "public/**/*.ts",
+    "public/**/*.js",
+    "src/utils/*.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }
