@@ -1,12 +1,16 @@
 import axios from "axios";
+import base64ToFile from "../src/utils/base64ToFile";
 
-chrome.runtime.onMessage.addListener(function (message) {
+chrome.runtime.onMessage.addListener((message) => {
   switch (message.action) {
     case "oauth2":
       handleGetAccessToken(message);
       break;
     case "fetchDiffData":
       handleFetchDiffData(message);
+      break;
+    case "takeScreenShot":
+      handleTakeScreenShot(message);
       break;
   }
 });
@@ -93,4 +97,67 @@ async function handleFetchDiffData(message: {
 
     console.error("An error occurred:", error);
   }
+}
+
+async function handleTakeScreenShot(message: { SERVER_URL: string }) {
+  chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+    const tabId = tabs[0].id;
+    const tabUrl = tabs[0].url;
+
+    const userId = await new Promise((resolve) => {
+      chrome.storage.local.get(["data"], (result) => {
+        resolve(result.data.user_id);
+      });
+    });
+
+    if (tabId && tabUrl) {
+      chrome.scripting.executeScript(
+        {
+          target: { tabId },
+          files: ["takeScreenShot.js"],
+        },
+        () => {
+          chrome.tabs.sendMessage(
+            tabId,
+            { action: "canvasScreenShot" },
+            async (response) => {
+              if (response.status === "success") {
+                const { screenshotBase64, diffBase64 } = response.result;
+                const SERVER_URL = message.SERVER_URL;
+
+                const screenshotFile = base64ToFile(
+                  screenshotBase64.split(",")[1],
+                  "screenshot.png",
+                  "image/png",
+                );
+                const diffFile = base64ToFile(
+                  diffBase64 ? diffBase64.split(",")[1] : "",
+                  "diff.png",
+                  "image/png",
+                );
+
+                try {
+                  const formData = new FormData();
+
+                  formData.append("tabUrl", tabUrl);
+                  formData.append("historyImages", screenshotFile);
+                  formData.append("historyImages", diffFile);
+
+                  await axios.post(`${SERVER_URL}/${userId}`, formData, {
+                    headers: {
+                      "Content-Type": "multipart/form-data",
+                    },
+                  });
+                } catch (error) {
+                  console.error("Error sending data to server:", error);
+                }
+              } else {
+                console.error("Error:", response.message);
+              }
+            },
+          );
+        },
+      );
+    }
+  });
 }
