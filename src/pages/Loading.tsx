@@ -103,7 +103,9 @@ const Loading: React.FC = () => {
   };
 
   const handleDataSave = () => {
-    // 데이터 저장 로직을 추가 작성해야합니다!
+    const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+
+    chrome.runtime.sendMessage({ action: "takeScreenShot", SERVER_URL });
   };
 
   if (showMain) {
