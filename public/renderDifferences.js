@@ -52,41 +52,88 @@ function renderDifferences(data) {
     document.body.appendChild(diffContainer);
   });
 
-  const existingScreenshot = document.querySelector(".screenshot-image");
-  const screenshotOpacityHandler = document.createElement("input");
+  createCombinedOpacityControl();
+}
 
-  screenshotOpacityHandler.setAttribute("type", "range");
-  screenshotOpacityHandler.style.position = "absolute";
-  screenshotOpacityHandler.style.left = "0px";
-  screenshotOpacityHandler.style.top = "0px";
-  screenshotOpacityHandler.style.width = "150px";
-  screenshotOpacityHandler.value = 100;
+function createCombinedOpacityControl() {
+  const controlBox = document.createElement("div");
+  controlBox.style.position = "absolute";
+  controlBox.style.top = "0px";
+  controlBox.style.left = "0px";
+  controlBox.style.padding = "10px";
+  controlBox.style.backgroundColor = "rgba(255, 255, 255, 0.8)";
+  controlBox.style.border = "1px solid #ccc";
+  controlBox.style.borderRadius = "5px";
+  controlBox.style.cursor = "move";
+  controlBox.style.zIndex = "10000";
 
-  document.body.appendChild(screenshotOpacityHandler);
+  const webpageLabel = document.createElement("label");
+  webpageLabel.textContent = "Webpage 조절하기";
+  webpageLabel.style.display = "block";
+  webpageLabel.style.marginBottom = "5px";
 
-  screenshotOpacityHandler.addEventListener("input", () => {
-    const screenshotOpacityValue = screenshotOpacityHandler.value / 100;
+  const webpageSlider = document.createElement("input");
+  webpageSlider.setAttribute("type", "range");
+  webpageSlider.style.width = "150px";
+  webpageSlider.value = 100;
 
-    existingScreenshot.style.opacity = screenshotOpacityValue;
+  const figmaLabel = document.createElement("label");
+  figmaLabel.textContent = "Figma Design 조절하기";
+  figmaLabel.style.display = "block";
+  figmaLabel.style.margin = "10px 0 5px 0";
+
+  const figmaSlider = document.createElement("input");
+  figmaSlider.setAttribute("type", "range");
+  figmaSlider.style.width = "150px";
+  figmaSlider.value = 20;
+
+  controlBox.appendChild(webpageLabel);
+  controlBox.appendChild(webpageSlider);
+  controlBox.appendChild(figmaLabel);
+  controlBox.appendChild(figmaSlider);
+
+  document.body.appendChild(controlBox);
+  let isDragging = false;
+  let offsetX, offsetY;
+
+  controlBox.addEventListener("mousedown", (e) => {
+    if (e.target !== webpageSlider && e.target !== figmaSlider) {
+      isDragging = true;
+      offsetX = e.clientX - controlBox.getBoundingClientRect().left;
+      offsetY = e.clientY - controlBox.getBoundingClientRect().top;
+      controlBox.style.cursor = "grabbing";
+    }
   });
 
-  const figmaImages = document.querySelectorAll(".figma-image");
-  const figmaImagesOpacityHandler = document.createElement("input");
+  document.addEventListener("mousemove", (e) => {
+    if (isDragging) {
+      controlBox.style.left = `${e.clientX - offsetX}px`;
+      controlBox.style.top = `${e.clientY - offsetY}px`;
+    }
+  });
 
-  figmaImagesOpacityHandler.setAttribute("type", "range");
-  figmaImagesOpacityHandler.style.position = "absolute";
-  figmaImagesOpacityHandler.style.left = "0px";
-  figmaImagesOpacityHandler.style.top = "25px";
-  figmaImagesOpacityHandler.style.width = "150px";
-  figmaImagesOpacityHandler.value = 20;
+  document.addEventListener("mouseup", () => {
+    isDragging = false;
+    controlBox.style.cursor = "move";
+  });
 
-  document.body.appendChild(figmaImagesOpacityHandler);
+  webpageSlider.addEventListener("input", () => {
+    const opacityValue = webpageSlider.value / 100;
+    document.querySelector(".screenshot-image").style.opacity = opacityValue;
+  });
 
-  figmaImagesOpacityHandler.addEventListener("input", () => {
-    const divOpacityValue = figmaImagesOpacityHandler.value / 100;
-
-    figmaImages.forEach((element) => {
-      element.style.opacity = divOpacityValue;
+  figmaSlider.addEventListener("input", () => {
+    const opacityValue = figmaSlider.value / 100;
+    document.querySelectorAll(".figma-image").forEach((element) => {
+      element.style.opacity = opacityValue;
     });
+  });
+
+  webpageSlider.addEventListener("mousedown", (e) => {
+    e.stopPropagation();
+  });
+
+  figmaSlider.addEventListener("mousedown", (e) => {
+    e.stopPropagation();
   });
 }
