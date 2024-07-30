@@ -10,6 +10,8 @@ const Loading: React.FC = () => {
   const [isDataFetchError, setIsDataFetchError] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentStage, setCurrentStage] = useState("분석 준비중입니다");
+  const [annotatedImage, setAnnotatedImage] = useState("");
+  const [isImageLoading, setIsImageLoading] = useState(true);
 
   useEffect(() => {
     const handleMessage = (message: { action: string }) => {
@@ -35,6 +37,7 @@ const Loading: React.FC = () => {
       chrome.storage.session.get([sessionKey], (result) => {
         const sessionData = result[sessionKey] || {};
 
+        setAnnotatedImage(sessionData.annotatedImage ?? "");
         setProgress(sessionData.progress ?? 0);
         setCurrentStage(sessionData.currentStage ?? "분석 준비중입니다");
         setIsDataFetched(sessionData.isDataFetched ?? false);
@@ -53,12 +56,27 @@ const Loading: React.FC = () => {
             setCurrentStage(data.stage);
             setProgress(data.progress);
 
+            let imageUrl = "";
+
+            if (data.optionalData) {
+              const annotatedImageBuffer = data.optionalData.data;
+              const uinit8Array = new Uint8Array(annotatedImageBuffer);
+              const blob = new Blob([uinit8Array], {
+                type: "image/png",
+              });
+              imageUrl = URL.createObjectURL(blob);
+
+              setAnnotatedImage(imageUrl);
+              setIsImageLoading(true);
+            }
+
             const newSessionData = {
               progress: data.progress,
               currentStage: data.stage,
               isDataFetched: data.progress === 100,
               isDataFetchError: false,
               isLoading: true,
+              annotatedImage: imageUrl,
             };
 
             chrome.storage.session.set({
@@ -108,6 +126,10 @@ const Loading: React.FC = () => {
     chrome.runtime.sendMessage({ action: "takeScreenShot", SERVER_URL });
   };
 
+  const handleImageLoad = () => {
+    setIsImageLoading(false);
+  };
+
   if (showMain) {
     return <Main />;
   }
@@ -118,19 +140,37 @@ const Loading: React.FC = () => {
         <ProgressBar progress={progress} currentStage={currentStage} />
       )}
       {isDataFetched && (
-        <div className="flex justify-center space-x-4 mt-4">
-          <button
-            onClick={handleDataSave}
-            className="text-white rounded transition duration-300 ease-in-out bg-gray-400 hover:bg-gray-600 py-3 px-4"
-          >
-            💾 내역 저장하기
-          </button>
-          <button
-            onClick={handleRetry}
-            className="text-white rounded transition duration-300 ease-in-out bg-gray-400 hover:bg-gray-600 py-3 px-4"
-          >
-            🔄 입력창으로 돌아가기
-          </button>
+        <div>
+          {annotatedImage && (
+            <img
+              src={annotatedImage}
+              alt="annotatedImage"
+              onLoad={handleImageLoad}
+              style={{ display: isImageLoading ? "none" : "block" }}
+            />
+          )}
+          {isImageLoading && (
+            <div className="flex items-center mt-4">
+              <div className="w-8 h-8 border-4 border-t-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
+              <p className="text-blue-500 ml-4 text-lg font-medium">
+                이미지 로딩 중...
+              </p>
+            </div>
+          )}
+          <div className="flex justify-center space-x-4 mt-4">
+            <button
+              onClick={handleDataSave}
+              className="text-white rounded transition duration-300 ease-in-out bg-gray-400 hover:bg-gray-600 py-3 px-4"
+            >
+              💾 내역 저장하기
+            </button>
+            <button
+              onClick={handleRetry}
+              className="text-white rounded transition duration-300 ease-in-out bg-gray-400 hover:bg-gray-600 py-3 px-4"
+            >
+              🔄 입력창으로 돌아가기
+            </button>
+          </div>
         </div>
       )}
       {isDataFetchError && (
