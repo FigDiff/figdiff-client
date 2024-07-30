@@ -8,7 +8,7 @@ chrome.storage.local.get(["data", "WEB_URL"], (result) => {
   const WEB_URL = result.WEB_URL;
 
   if (userId) {
-    window.location.href = `${WEB_URL}/dash`;
+    window.location.href = `${WEB_URL}/dash/${userId}`;
   } else {
     window.location.href = `${WEB_URL}`;
   }
