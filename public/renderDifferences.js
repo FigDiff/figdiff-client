@@ -95,19 +95,19 @@ function createCombinedOpacityControl() {
   let isDragging = false;
   let offsetX, offsetY;
 
-  controlBox.addEventListener("mousedown", (e) => {
-    if (e.target !== webpageSlider && e.target !== figmaSlider) {
+  controlBox.addEventListener("mousedown", (event) => {
+    if (event.targeventt !== webpageSlider && event.target !== figmaSlider) {
       isDragging = true;
-      offsetX = e.clientX - controlBox.getBoundingClientRect().left;
-      offsetY = e.clientY - controlBox.getBoundingClientRect().top;
+      offsetX = event.clientX - controlBox.getBoundingClientRect().left;
+      offsetY = event.clientY - controlBox.getBoundingClientRect().top;
       controlBox.style.cursor = "grabbing";
     }
   });
 
-  document.addEventListener("mousemove", (e) => {
+  document.addEventListener("mousemove", (event) => {
     if (isDragging) {
-      controlBox.style.left = `${e.clientX - offsetX}px`;
-      controlBox.style.top = `${e.clientY - offsetY}px`;
+      controlBox.style.left = `${event.clientX - offsetX}px`;
+      controlBox.style.top = `${event.clientY - offsetY}px`;
     }
   });
 
@@ -126,11 +126,11 @@ function createCombinedOpacityControl() {
     document.querySelector(".diff-Container").style.opacity = opacityValue;
   });
 
-  webpageSlider.addEventListener("mousedown", (e) => {
-    e.stopPropagation();
+  webpageSlider.addEventListener("mousedown", (event) => {
+    event.stopPropagation();
   });
 
-  figmaSlider.addEventListener("mousedown", (e) => {
-    e.stopPropagation();
+  figmaSlider.addEventListener("mousedown", (event) => {
+    event.stopPropagation();
   });
 }
