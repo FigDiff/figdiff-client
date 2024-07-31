@@ -79,7 +79,7 @@ const Main: React.FC = () => {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-8 font-sans">
       <h1 className="text-2xl font-bold text-gray-800 mb-2">FigDiff</h1>
       <hr className="border-gray-300 my-2" />
       <div className="grid grid-cols-2 gap-4 mt-4">
@@ -97,7 +97,7 @@ const Main: React.FC = () => {
         </Button>
       </div>
       {webContentVisible ? (
-        <div className="px-4 mt-6 font-serif">
+        <div className="px-4 mt-6">
           <h2 className="text-lg text-gray-700 mb-4">Web에서 내역 확인하기</h2>
           <p>
             저장한 결과를 URL 단위로 히스토리 내역을 통해 확인해 보실 수
@@ -112,7 +112,7 @@ const Main: React.FC = () => {
         </div>
       ) : (
         <>
-          <div className="px-4 font-serif">
+          <div className="px-4">
             <h2 className="text-lg text-gray-700 mt-6 mb-4">
               FigDiff 사용방법
             </h2>
