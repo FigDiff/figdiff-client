@@ -12,6 +12,9 @@ export default {
           "100%": { width: "100%" },
         },
       },
+      fontFamily: {
+        sans: ["Pretendard", "sans-serif"],
+      },
     },
   },
   plugins: [],

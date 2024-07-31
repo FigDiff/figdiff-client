@@ -12,6 +12,7 @@ const Loading: React.FC = () => {
   const [currentStage, setCurrentStage] = useState("분석 준비중입니다");
   const [annotatedImage, setAnnotatedImage] = useState("");
   const [isImageLoading, setIsImageLoading] = useState(true);
+  const [saveSuccessful, setSaveSuccessful] = useState(false);
 
   useEffect(() => {
     const handleMessage = (message: { action: string }) => {
@@ -124,6 +125,7 @@ const Loading: React.FC = () => {
     const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
     chrome.runtime.sendMessage({ action: "takeScreenShot", SERVER_URL });
+    setSaveSuccessful(true);
   };
 
   const handleImageLoad = () => {
@@ -160,9 +162,10 @@ const Loading: React.FC = () => {
           <div className="flex justify-center space-x-4 mt-4">
             <button
               onClick={handleDataSave}
-              className="text-white rounded transition duration-300 ease-in-out bg-gray-400 hover:bg-gray-600 py-3 px-4"
+              disabled={saveSuccessful}
+              className={`text-white rounded transition duration-300 ease-in-out ${saveSuccessful ? "bg-sky-300" : "bg-gray-400 hover:bg-gray-600"} py-3 px-4`}
             >
-              💾 내역 저장하기
+              {saveSuccessful ? "✓ 저장 성공!" : "💾 내역 저장하기"}
             </button>
             <button
               onClick={handleRetry}

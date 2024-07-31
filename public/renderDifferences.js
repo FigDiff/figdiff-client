@@ -67,7 +67,7 @@ function createCombinedOpacityControl() {
   controlBox.style.zIndex = "10000";
 
   const webpageLabel = document.createElement("label");
-  webpageLabel.textContent = "Webpage 조절하기";
+  webpageLabel.textContent = "WebPage Opacity";
   webpageLabel.style.display = "block";
   webpageLabel.style.marginBottom = "5px";
 
@@ -77,7 +77,7 @@ function createCombinedOpacityControl() {
   webpageSlider.value = 100;
 
   const figmaLabel = document.createElement("label");
-  figmaLabel.textContent = "Figma Design 조절하기";
+  figmaLabel.textContent = "Figma Design Opacity";
   figmaLabel.style.display = "block";
   figmaLabel.style.margin = "10px 0 5px 0";
 
