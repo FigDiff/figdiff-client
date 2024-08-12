@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Main from "./Main";
 import ErrorMark from "../components/ErrorMark";
 import ProgressBar from "../components/ProgressBar";
+import clearSession from "../utils/chromeStorageUtil";
 
 const Loading: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -17,6 +18,7 @@ const Loading: React.FC = () => {
   useEffect(() => {
     const handleMessage = (message: { action: string }) => {
       if (message.action === "serverError") {
+        clearSession();
         setIsLoading(false);
         setIsDataFetched(false);
         setIsDataFetchError(true);
@@ -95,6 +97,7 @@ const Loading: React.FC = () => {
         eventSource.onerror = (error) => {
           console.error("SSE Error:", error);
 
+          clearSession();
           setIsLoading(false);
           setIsDataFetched(false);
           setIsDataFetchError(true);
@@ -109,16 +112,8 @@ const Loading: React.FC = () => {
 
   const handleRetry = () => {
     setIsLoading(false);
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      const tabId = tabs[0]?.id;
-      if (tabId) {
-        const sessionKey = `session_${tabId}`;
-
-        chrome.storage.session.remove([sessionKey], () => {
-          setShowMain(true);
-        });
-      }
-    });
+    clearSession();
+    setShowMain(true);
   };
 
   const handleDataSave = () => {
