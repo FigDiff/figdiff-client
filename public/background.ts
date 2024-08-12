@@ -13,6 +13,8 @@ chrome.runtime.onMessage.addListener((message) => {
       handleTakeScreenShot(message);
       break;
   }
+
+  return true;
 });
 
 async function handleGetAccessToken(message: {
