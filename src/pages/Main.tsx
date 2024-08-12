@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useAuthStore } from "../store/useAccessToken";
 import { isValidFigmaUrl } from "../utils/utils";
 
 import Loading from "../pages/Loading";
@@ -7,7 +6,7 @@ import UrlInput from "../components/UrlInput";
 import Button from "../components/Button";
 
 const Main: React.FC = () => {
-  const { accessToken } = useAuthStore();
+  const [accessToken, isAccessToken] = useState("");
   const [isValidUrl, setIsValidUrl] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [webContentVisible, setWebContentVisible] = useState(false);
@@ -25,6 +24,12 @@ const Main: React.FC = () => {
         const sessionData = result[sessionKey] || {};
         setIsLoading(sessionData.isLoading || false);
       });
+    });
+
+    chrome.storage.local.get("data", (result) => {
+      if (result.data && result.data.access_token) {
+        isAccessToken(result.data.access_token);
+      }
     });
   }, []);
 
