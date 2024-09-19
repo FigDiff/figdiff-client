@@ -82,18 +82,33 @@ async function handleFetchDiffData(message: {
 
     const data = response.data;
 
-    chrome.scripting.executeScript(
-      {
-        target: { tabId },
-        files: ["renderDifferences.js"],
-      },
-      () => {
-        chrome.tabs.sendMessage(tabId, {
-          action: "renderDifferences",
-          data,
-        });
-      },
-    );
+    await new Promise<void>((resolve) => {
+      chrome.scripting.executeScript(
+        {
+          target: { tabId },
+          files: ["renderDifferences.js"],
+        },
+        () => {
+          chrome.tabs.sendMessage(
+            tabId,
+            {
+              action: "renderDifferences",
+              data,
+            },
+            () => {
+              if (chrome.runtime.lastError) {
+                console.error(
+                  "Error sending message:",
+                  chrome.runtime.lastError,
+                );
+              }
+
+              resolve();
+            },
+          );
+        },
+      );
+    });
   } catch (error) {
     chrome.runtime.sendMessage({ action: "serverError" });
 

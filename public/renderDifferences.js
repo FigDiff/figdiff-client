@@ -96,7 +96,7 @@ function createCombinedOpacityControl() {
   let offsetX, offsetY;
 
   controlBox.addEventListener("mousedown", (event) => {
-    if (event.targeventt !== webpageSlider && event.target !== figmaSlider) {
+    if (event.target !== webpageSlider && event.target !== figmaSlider) {
       isDragging = true;
       offsetX = event.clientX - controlBox.getBoundingClientRect().left;
       offsetY = event.clientY - controlBox.getBoundingClientRect().top;
