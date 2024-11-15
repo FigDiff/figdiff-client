@@ -38,7 +38,7 @@ const Login: React.FC = () => {
   return (
     <div className="items-center justify-center p-8">
       <Introduction />
-      <Button onClick={clickev}>Figma 계정으로 로그인</Button>
+      <Button onClick={handleGetOauth}>Figma 계정으로 로그인</Button>
     </div>
   );
 };
