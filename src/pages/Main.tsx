@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { isValidFigmaUrl } from "../utils/utils";
 
-import Loading from "../pages/Loading";
+import ResultProcessingPage from "./ResultProcessingPage";
 import UrlInput from "../components/UrlInput";
 import Button from "../components/Button";
 
@@ -80,7 +80,7 @@ const Main: React.FC = () => {
   };
 
   if (isLoading) {
-    return <Loading />;
+    return <ResultProcessingPage />;
   }
 
   return (

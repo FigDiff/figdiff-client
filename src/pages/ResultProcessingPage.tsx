@@ -4,7 +4,7 @@ import ErrorMark from "../components/ErrorMark";
 import ProgressBar from "../components/ProgressBar";
 import clearSession from "../utils/chromeStorageUtil";
 
-const Loading: React.FC = () => {
+const ResultProcessingPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showMain, setShowMain] = useState(false);
   const [isDataFetched, setIsDataFetched] = useState(false);
@@ -192,4 +192,4 @@ const Loading: React.FC = () => {
   );
 };
 
-export default Loading;
+export default ResultProcessingPage;
