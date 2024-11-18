@@ -12,7 +12,14 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   const [animatedProgress, setAnimatedProgress] = useState(0);
 
   useEffect(() => {
-    let interval: number;
+    let animationFrameId: number;
+
+    const animateProgress = () => {
+      if (animatedProgress < progress) {
+        setAnimatedProgress((prev) => Math.min(prev + 1, progress));
+        animationFrameId = requestAnimationFrame(animateProgress);
+      }
+    };
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const tabId = tabs[0]?.id;
@@ -25,25 +32,20 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
 
         if (sessionDataFetched === true && sessionProgress === 100) {
           setAnimatedProgress(100);
-
           return;
         }
 
-        if (animatedProgress < progress) {
-          interval = window.setInterval(() => {
-            setAnimatedProgress((prev) => Math.min(prev + 1, progress));
-          }, 50);
-        } else if (animatedProgress < 100 && progress === 100) {
-          interval = window.setInterval(() => {
-            setAnimatedProgress((prev) => Math.min(prev + 1, 100));
-          }, 50);
+        if (progress !== 100) {
+          animationFrameId = requestAnimationFrame(animateProgress);
+        } else {
+          setAnimatedProgress(100);
         }
       });
     });
 
     return () => {
-      if (interval) {
-        window.clearInterval(interval);
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
       }
     };
   }, [progress, animatedProgress]);
@@ -55,7 +57,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       </p>
       <div className="relative w-full max-w-lg bg-gray-200 rounded-full h-2.5 mt-4 overflow-hidden">
         <div
-          className="absolute top-0 left-0 bg-indigo-600 h-2.5 rounded-full transition-all duration-500"
+          className="absolute top-0 left-0 bg-indigo-600 h-2.5 rounded-full"
           style={{ width: `${animatedProgress}%` }}
         ></div>
       </div>
