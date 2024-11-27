@@ -1,18 +1,18 @@
-import React from "react";
+import { ReactNode } from "react";
 
-type ButtonProps = {
+type ButtonProps<T extends ReactNode> = {
   onClick: () => void;
-  children: React.ReactNode;
+  children: T;
   className?: string;
   disabled?: boolean;
 };
 
-const Button: React.FC<ButtonProps> = ({
+const Button = <T extends ReactNode>({
   onClick,
   children,
   className = "",
   disabled = false,
-}) => {
+}: ButtonProps<T>) => {
   return (
     <button
       onClick={onClick}

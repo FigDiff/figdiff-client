@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { isValidFigmaUrl } from "../utils/utils";
 
 import ResultProcessingPage from "./ResultProcessingPage";
 import UrlInput from "../components/UrlInput";
 import Button from "../components/Button";
 
-const Main: React.FC = () => {
+const Main = () => {
   const [accessToken, isAccessToken] = useState("");
   const [isValidUrl, setIsValidUrl] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -88,13 +88,13 @@ const Main: React.FC = () => {
       <h1 className="text-2xl font-bold text-gray-800 mb-2">FigDiff</h1>
       <hr className="border-gray-300 my-2" />
       <div className="grid grid-cols-2 gap-4 mt-4">
-        <Button
+        <Button<string>
           onClick={() => setWebContentVisible(false)}
           className={`w-full ${!webContentVisible ? "bg-blue-500 hover:bg-blue-700" : "bg-gray-300"}`}
         >
           Diffing
         </Button>
-        <Button
+        <Button<string>
           onClick={toggleWebContent}
           className={`w-full ${webContentVisible ? "bg-blue-500 hover:bg-blue-700" : "bg-gray-300"}`}
         >
@@ -108,7 +108,7 @@ const Main: React.FC = () => {
             저장한 결과를 URL 단위로 히스토리 내역을 통해 확인해 보실 수
             있습니다!
           </p>
-          <Button
+          <Button<string>
             onClick={handleNavigate}
             className="bg-purple-500 hover:bg-purple-700 mt-6"
           >
@@ -139,7 +139,7 @@ const Main: React.FC = () => {
               유효한 URL이 아닙니다.
             </p>
           )}
-          <Button
+          <Button<string>
             onClick={handlePostData}
             className={`${isValidUrl ? "bg-green-500 hover:bg-green-700" : "bg-gray-500 cursor-not-allowed"}`}
             disabled={!isValidUrl}

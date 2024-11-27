@@ -1,8 +1,7 @@
-import React from "react";
 import Button from "../components/Button";
 import Introduction from "../components/Introduction";
 
-const Login: React.FC = () => {
+const Login = () => {
   const handleGetOauth = () => {
     chrome.identity.launchWebAuthFlow(
       {
@@ -38,7 +37,7 @@ const Login: React.FC = () => {
   return (
     <div className="items-center justify-center p-8">
       <Introduction />
-      <Button onClick={handleGetOauth}>Figma 계정으로 로그인</Button>
+      <Button<string> onClick={handleGetOauth}>Figma 계정으로 로그인</Button>
     </div>
   );
 };
