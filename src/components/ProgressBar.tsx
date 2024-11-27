@@ -1,14 +1,11 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface ProgressBarProps {
   progress: number;
   currentStage: string;
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({
-  progress,
-  currentStage,
-}) => {
+const ProgressBar = ({ progress, currentStage }: ProgressBarProps) => {
   const [animatedProgress, setAnimatedProgress] = useState(0);
 
   useEffect(() => {

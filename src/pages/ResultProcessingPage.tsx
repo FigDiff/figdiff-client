@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Main from "./Main";
 import ErrorMark from "../components/ErrorMark";
 import ProgressBar from "../components/ProgressBar";
 import clearSession from "../utils/chromeStorageUtil";
 
-const ResultProcessingPage: React.FC = () => {
+const ResultProcessingPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showMain, setShowMain] = useState(false);
   const [isDataFetched, setIsDataFetched] = useState(false);

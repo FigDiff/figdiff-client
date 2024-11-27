@@ -7,12 +7,7 @@ type UrlInputProps = {
   placeholder: string;
 };
 
-const UrlInput: React.FC<UrlInputProps> = ({
-  value,
-  onChange,
-  isValid,
-  placeholder,
-}) => {
+const UrlInput = ({ value, onChange, isValid, placeholder }: UrlInputProps) => {
   return (
     <input
       type="text"

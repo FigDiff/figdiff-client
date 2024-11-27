@@ -1,6 +1,4 @@
-import React from "react";
-
-const ErrorMark: React.FC = () => {
+const ErrorMark = () => {
   return (
     <div className="flex items-center justify-center mb-6 relative">
       <svg

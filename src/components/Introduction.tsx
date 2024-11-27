@@ -1,6 +1,4 @@
-import React from "react";
-
-const Introduction: React.FC = () => {
+const Introduction = () => {
   return (
     <div className="text-center mb-8">
       <h1 className="text-4xl font-bold">Welcome to FigDiff</h1>
