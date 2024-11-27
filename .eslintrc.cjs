@@ -23,7 +23,7 @@ module.exports = {
       jsx: true,
     },
     tsconfigRootDir: __dirname,
-    project: ["./tsconfig.json", "./tsconfig.app.json", "./tsconfig.node.json"],
+    project: ["./tsconfig.eslint.json"],
   },
   plugins: ["react-refresh", "@typescript-eslint"],
   rules: {
