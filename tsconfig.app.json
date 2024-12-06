@@ -31,5 +31,5 @@
       "@pages/*": ["pages/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "tests"]
 }
